@@ -5,6 +5,8 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy backend requirements first to leverage Docker cache
@@ -13,11 +15,19 @@ COPY backend/requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy backend code
+# Copy frontend files and build
+COPY frontend/ ./frontend/
+WORKDIR /app/frontend
+RUN npm install
+RUN npm run build
+
+# Go back to app directory and copy backend code
+WORKDIR /app
 COPY backend/ ./backend/
 
-# Copy frontend build
-COPY frontend/build/ ./backend/static/
+# Move frontend build to backend static
+RUN mkdir -p backend/static && \
+    cp -r frontend/build/* backend/static/
 
 # Set environment variables
 ENV PYTHONPATH=/app/backend
