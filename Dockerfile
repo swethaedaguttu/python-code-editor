@@ -1,3 +1,23 @@
+# Build stage for frontend
+FROM node:18-alpine AS frontend-builder
+
+WORKDIR /app/frontend
+
+# Copy frontend files
+COPY frontend/package*.json ./
+
+# Install dependencies
+RUN npm install --legacy-peer-deps
+
+# Copy the rest of the frontend code
+COPY frontend/ ./
+
+# Build the frontend
+ENV CI=false
+ENV GENERATE_SOURCEMAP=false
+RUN npm run build
+
+# Final stage
 FROM python:3.9-slim
 
 # Create a non-root user
@@ -5,7 +25,7 @@ RUN useradd -m -u 1000 appuser
 
 WORKDIR /app
 
-# Install system dependencies and Node.js
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
@@ -22,31 +42,11 @@ COPY backend/requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy frontend files and build
-COPY frontend/ ./frontend/
-WORKDIR /app/frontend
-
-# Fix permissions and install frontend dependencies
-RUN chown -R appuser:appuser /app && \
-    chmod -R 755 /app && \
-    npm cache clean --force && \
-    npm install --legacy-peer-deps && \
-    npm install -g serve && \
-    chmod +x node_modules/.bin/react-scripts
-
-# Build frontend
-USER appuser
-RUN CI=false GENERATE_SOURCEMAP=false npm run build
-
-# Switch back to root for final setup
-USER root
-WORKDIR /app
+# Copy backend code
 COPY backend/ ./backend/
 
-# Move frontend build to backend static
-RUN mkdir -p backend/static && \
-    cp -r frontend/build/* backend/static/ && \
-    chown -R appuser:appuser /app
+# Copy frontend build from the builder stage
+COPY --from=frontend-builder /app/frontend/build ./backend/static/
 
 # Set environment variables
 ENV PYTHONPATH=/app/backend
