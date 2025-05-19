@@ -48,13 +48,24 @@ app.add_middleware(
 current_dir = os.path.dirname(os.path.abspath(__file__))
 static_dir = os.path.join(current_dir, "static")
 
+# Log static directory path and contents
+logger.info(f"Static directory path: {static_dir}")
+if os.path.exists(static_dir):
+    logger.info(f"Static directory contents: {os.listdir(static_dir)}")
+else:
+    logger.error(f"Static directory does not exist: {static_dir}")
+
 # Mount static files
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # Root endpoint
 @app.get("/")
 async def read_root():
-    return FileResponse(os.path.join(static_dir, "index.html"))
+    index_path = os.path.join(static_dir, "index.html")
+    if not os.path.exists(index_path):
+        logger.error(f"index.html not found at: {index_path}")
+        return {"error": "Static files not found"}
+    return FileResponse(index_path)
 
 # Store active connections
 active_connections: Dict[str, 'ProcessManager'] = {}

@@ -40,8 +40,13 @@ COPY backend/ ./backend/
 RUN mkdir -p backend/static
 COPY --from=frontend-builder /app/frontend/build/ ./backend/static/
 
+# Set correct permissions
+RUN chmod -R 755 backend/static
+
 # Verify static directory exists and has content
-RUN ls -la backend/static/
+RUN ls -la backend/static/ && \
+    echo "Contents of static directory:" && \
+    find backend/static -type f
 
 # Set environment variables
 ENV PYTHONPATH=/app/backend
