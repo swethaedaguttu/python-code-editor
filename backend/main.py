@@ -79,6 +79,9 @@ async def read_root():
         content = content.replace('href="/', 'href="/static/')
         content = content.replace('src="/', 'src="/static/')
     
+    # Fix WebSocket connection to use secure protocol
+    content = content.replace('ws://', 'wss://')
+    
     return FileResponse(
         index_path,
         media_type='text/html',

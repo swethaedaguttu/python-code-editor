@@ -355,6 +355,12 @@ b = int(input('Enter 2nd number: '))
 print(f'Sum of {a} and {b} is {sum(a, b)}')
 `;
 
+const getWebSocketUrl = () => {
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const host = window.location.host;
+  return `${protocol}//${host}/ws/terminal`;
+};
+
 function App() {
   const [code, setCode] = useState(defaultCode);
   const [editorMounted, setEditorMounted] = useState(false);
@@ -400,6 +406,10 @@ function App() {
   const [editName, setEditName] = useState('');
   const [error, setError] = useState(null);
   const [programState, setProgramState] = useState('idle');
+  const [output, setOutput] = useState('');
+  const [isConnected, setIsConnected] = useState(false);
+  const [ws, setWs] = useState(null);
+  const [connectionId] = useState(() => Date.now().toString());
 
   const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
@@ -902,10 +912,10 @@ function App() {
         }
 
         try {
-          wsRef.current = new WebSocket(`ws://${window.location.host}/ws/terminal?connectionId=${connectionId}`);
+          wsRef.current = new WebSocket(`${getWebSocketUrl()}?connectionId=${connectionId}`);
           
           wsRef.current.onopen = () => {
-            console.log('WebSocket connected');
+            console.log('Connected to server');
             isProgramRunning.current = false;
           inputBufferRef.current = '';
             reconnectAttempts = 0; // Reset reconnect attempts on successful connection
