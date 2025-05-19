@@ -1,82 +1,86 @@
-# Online Python Code Editor
+# Python Code Editor
 
-A web-based Python code editor with integrated terminal output, similar to online-python.com. Built with React, FastAPI, and Docker.
+A web-based Python code editor with real-time execution and output display.
 
 ## Features
 
-- Real-time code editing with syntax highlighting
-- Integrated terminal output
-- Secure code execution in Docker containers
-- WebSocket-based real-time communication
-- Modern, responsive UI
+- Real-time code execution
+- Terminal output display
+- File management
+- Dark/Light theme support
+- Responsive design
 
-## Prerequisites
+## Development
 
-- Node.js (v14 or higher)
-- Python 3.9 or higher
-- Docker
-- npm or yarn
+### Prerequisites
 
-## Setup Instructions
+- Python 3.9+
+- Node.js 18+
+- npm
 
 ### Backend Setup
 
-1. Create a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+2. Install Python dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-3. Start the backend server:
-```bash
-cd backend
-uvicorn main:app --reload
-```
+3. Run the backend server:
+   ```bash
+   uvicorn main:app --reload
+   ```
 
 ### Frontend Setup
 
-1. Install dependencies:
-```bash
-cd frontend
-npm install
-```
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
 
-2. Start the development server:
-```bash
-npm start
-```
+2. Install Node.js dependencies:
+   ```bash
+   npm install
+   ```
 
-### Docker Setup
+3. Start the development server:
+   ```bash
+   npm start
+   ```
 
-1. Build the backend Docker image:
-```bash
-docker build -t code-editor-backend .
-```
+## Deployment
 
-2. Run the backend container:
-```bash
-docker run -p 8000:8000 code-editor-backend
-```
+The application is deployed on Render. The deployment process is automated using GitHub Actions.
 
-## Usage
+### Manual Deployment
 
-1. Open your browser and navigate to `http://localhost:3000`
-2. Write your Python code in the editor
-3. Click "Run Code" to execute your code
-4. View the output in the integrated terminal
+1. Build the frontend:
+   ```bash
+   cd frontend
+   npm run build
+   ```
 
-## Security Features
+2. Copy the build files to the backend:
+   ```bash
+   mkdir -p backend/static
+   cp -r frontend/build/* backend/static/
+   ```
 
-- Code execution is sandboxed in Docker containers
-- Each execution runs in a fresh container
-- Containers are automatically cleaned up after execution
-- Input validation and sanitization
+3. Deploy to Render:
+   - Create a new Web Service on Render
+   - Connect your GitHub repository
+   - Set the build command: `cd backend && pip install -r requirements.txt`
+   - Set the start command: `cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT`
 
-## Contributing
+## Environment Variables
 
-Feel free to submit issues and enhancement requests! 
+- `PORT`: The port number for the server (default: 8000)
+- `PYTHON_VERSION`: Python version (default: 3.9.0)
+
+## License
+
+MIT 
