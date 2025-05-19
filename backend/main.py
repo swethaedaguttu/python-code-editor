@@ -44,13 +44,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Get the current directory
+current_dir = os.path.dirname(os.path.abspath(__file__))
+static_dir = os.path.join(current_dir, "static")
+
 # Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # Root endpoint
 @app.get("/")
 async def read_root():
-    return FileResponse("static/index.html")
+    return FileResponse(os.path.join(static_dir, "index.html"))
 
 # Store active connections
 active_connections: Dict[str, 'ProcessManager'] = {}

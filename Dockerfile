@@ -40,6 +40,9 @@ COPY backend/ ./backend/
 RUN mkdir -p backend/static
 COPY --from=frontend-builder /app/frontend/build/ ./backend/static/
 
+# Verify static directory exists and has content
+RUN ls -la backend/static/
+
 # Set environment variables
 ENV PYTHONPATH=/app/backend
 ENV PYTHONUNBUFFERED=1
