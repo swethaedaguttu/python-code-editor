@@ -7,8 +7,10 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
     gnupg \
+    git \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
+    && npm install -g npm@latest \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy backend requirements first to leverage Docker cache
@@ -22,9 +24,10 @@ COPY frontend/ ./frontend/
 WORKDIR /app/frontend
 
 # Install frontend dependencies and build
-RUN npm install --legacy-peer-deps && \
+RUN npm cache clean --force && \
+    npm install --legacy-peer-deps && \
     npm install -g serve && \
-    GENERATE_SOURCEMAP=false npm run build
+    CI=false GENERATE_SOURCEMAP=false npm run build
 
 # Go back to app directory and copy backend code
 WORKDIR /app
@@ -38,6 +41,7 @@ RUN mkdir -p backend/static && \
 ENV PYTHONPATH=/app/backend
 ENV PYTHONUNBUFFERED=1
 ENV NODE_ENV=production
+ENV CI=false
 
 # Expose the port
 EXPOSE 8000
