@@ -818,8 +818,8 @@ function App() {
 
     try {
       // Initialize terminal
-      const terminal = new Terminal({
-        cursorBlink: true,
+    const terminal = new Terminal({
+      cursorBlink: true,
         fontSize: 14,
         fontFamily: 'Consolas, "Courier New", monospace',
         theme: {
@@ -845,30 +845,30 @@ function App() {
           brightWhite: theme === 'dark' ? '#ffffff' : '#ffffff'
         },
         scrollback: 10000,
-        convertEol: true,
+      convertEol: true,
         disableStdin: false,
         allowTransparency: true,
-        rendererType: 'canvas',
-        windowsMode: true,
+      rendererType: 'canvas',
+      windowsMode: true,
         fastScrollModifier: 'alt',
         fastScrollSensitivity: 5,
         scrollSensitivity: 1,
         cursorStyle: 'block',
         rightClickSelectsWord: true
-      });
+    });
 
-      // Initialize and configure fit addon
-      const fitAddon = new FitAddon();
-      terminal.loadAddon(fitAddon);
-      terminal.open(terminalRef.current);
-      
-      // Store refs
-      fitAddonRef.current = fitAddon;
-      terminalInstanceRef.current = terminal;
+    // Initialize and configure fit addon
+    const fitAddon = new FitAddon();
+    terminal.loadAddon(fitAddon);
+    terminal.open(terminalRef.current);
+    
+    // Store refs
+    fitAddonRef.current = fitAddon;
+    terminalInstanceRef.current = terminal;
 
-      // Initial fit
-      requestAnimationFrame(() => {
-        fitAddon.fit();
+    // Initial fit
+    requestAnimationFrame(() => {
+      fitAddon.fit();
         terminal.focus();
       });
 
@@ -883,8 +883,8 @@ function App() {
       // Initialize WebSocket
       const connectWebSocket = () => {
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-          return;
-        }
+        return;
+      }
 
         // Clear any existing reconnect timeout
         if (reconnectTimeout) {
@@ -907,13 +907,13 @@ function App() {
           wsRef.current.onopen = () => {
             console.log('WebSocket connected');
             isProgramRunning.current = false;
-            inputBufferRef.current = '';
+          inputBufferRef.current = '';
             reconnectAttempts = 0; // Reset reconnect attempts on successful connection
           };
-        
-          wsRef.current.onmessage = (event) => {
-            try {
-              const data = event.data;
+    
+    wsRef.current.onmessage = (event) => {
+      try {
+        const data = event.data;
               
               if (!terminalInstanceRef.current) {
                 console.error('Terminal instance not found');
@@ -928,10 +928,10 @@ function App() {
                 terminalInstanceRef.current.write(data);
                 terminalInstanceRef.current.scrollToBottom();
               }
-              
-              if (data.includes('** Process exited')) {
-                isProgramRunning.current = false;
-                inputBufferRef.current = '';
+        
+        if (data.includes('** Process exited')) {
+          isProgramRunning.current = false;
+          inputBufferRef.current = '';
               } else if (data.includes('Enter')) {
                 isProgramRunning.current = true;
                 if (terminalRef.current) {
@@ -940,22 +940,22 @@ function App() {
                 if (terminalInstanceRef.current) {
                   terminalInstanceRef.current.focus();
                 }
-              }
-            } catch (error) {
+        }
+      } catch (error) {
               console.error('Error in WebSocket message handler:', error);
-            }
-          };
+      }
+    };
 
-          wsRef.current.onerror = (error) => {
-            console.error('WebSocket error:', error);
-            isProgramRunning.current = false;
-            inputBufferRef.current = '';
-          };
+    wsRef.current.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      isProgramRunning.current = false;
+      inputBufferRef.current = '';
+    };
 
           wsRef.current.onclose = (event) => {
             console.log('WebSocket connection closed:', event.code, event.reason);
-            isProgramRunning.current = false;
-            inputBufferRef.current = '';
+      isProgramRunning.current = false;
+      inputBufferRef.current = '';
             
             // Only attempt to reconnect if we haven't exceeded max attempts
             if (reconnectAttempts < maxReconnectAttempts) {
@@ -980,7 +980,7 @@ function App() {
         }
       }, 5000);
 
-      return () => {
+    return () => {
         clearInterval(connectionCheckInterval);
         if (reconnectTimeout) {
           clearTimeout(reconnectTimeout);
@@ -989,9 +989,9 @@ function App() {
           wsRef.current.close(1000, 'Component unmount');
         }
         if (terminal) {
-          terminal.dispose();
-        }
-      };
+      terminal.dispose();
+      }
+    };
     } catch (error) {
       console.error('Error initializing terminal:', error);
     }
