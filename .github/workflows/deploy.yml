@@ -32,8 +32,8 @@ jobs:
       - name: Install Node.js dependencies
         run: |
           cd frontend
-          npm ci
-          npm install -g react-scripts
+          npm install --package-lock-only
+          npm install
           
       - name: Build frontend
         run: |

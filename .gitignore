@@ -31,7 +31,6 @@ yarn-error.log*
 coverage/
 .next/
 out/
-build/
 .DS_Store
 *.pem
 .env.local
@@ -58,4 +57,7 @@ Thumbs.db
 
 # Build
 /frontend/build
-/frontend/dist 
+/frontend/dist
+
+# Keep package-lock.json
+!package-lock.json 
