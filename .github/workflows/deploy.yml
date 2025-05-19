@@ -27,15 +27,18 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+          cache: 'npm'
           
       - name: Install Node.js dependencies
         run: |
           cd frontend
-          npm install
+          npm ci
+          npm install -g react-scripts
           
       - name: Build frontend
         run: |
           cd frontend
+          export PATH=$PATH:$(npm bin)
           npm run build
           
       - name: Copy frontend build to backend
