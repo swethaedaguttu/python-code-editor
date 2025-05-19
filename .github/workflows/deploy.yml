@@ -34,12 +34,15 @@ jobs:
         run: |
           cd frontend
           npm install
+          npm install -g react-scripts@5.0.1
+          chmod +x node_modules/.bin/react-scripts
           
       - name: Build frontend
         run: |
           cd frontend
           export PATH=$PATH:$(npm bin)
-          npm run build
+          export NODE_ENV=production
+          npx react-scripts build
           
       - name: Copy frontend build to backend
         run: |
