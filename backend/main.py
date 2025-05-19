@@ -35,10 +35,14 @@ if platform.system() == 'Windows':
 
 app = FastAPI()
 
-# Configure CORS
+# Configure CORS with specific origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://python-code-editor-1-bhs7.onrender.com",
+        "http://localhost:3000",
+        "http://localhost:8000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -85,7 +89,13 @@ async def read_root():
     return FileResponse(
         index_path,
         media_type='text/html',
-        headers={'Content-Type': 'text/html'}
+        headers={
+            'Content-Type': 'text/html',
+            'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+            'X-Content-Type-Options': 'nosniff',
+            'X-Frame-Options': 'DENY',
+            'X-XSS-Protection': '1; mode=block'
+        }
     )
 
 # Store active connections
@@ -369,4 +379,20 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
     logger.info(f"Starting server on port {port}...")
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    
+    # Configure SSL for production
+    ssl_keyfile = os.getenv("SSL_KEYFILE")
+    ssl_certfile = os.getenv("SSL_CERTFILE")
+    
+    if ssl_keyfile and ssl_certfile and os.path.exists(ssl_keyfile) and os.path.exists(ssl_certfile):
+        logger.info("Starting server with SSL...")
+        uvicorn.run(
+            app,
+            host="0.0.0.0",
+            port=port,
+            ssl_keyfile=ssl_keyfile,
+            ssl_certfile=ssl_certfile
+        )
+    else:
+        logger.info("Starting server without SSL...")
+        uvicorn.run(app, host="0.0.0.0", port=port)

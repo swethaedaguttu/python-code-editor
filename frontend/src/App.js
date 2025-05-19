@@ -356,6 +356,11 @@ print(f'Sum of {a} and {b} is {sum(a, b)}')
 `;
 
 const getWebSocketUrl = () => {
+  // Always use secure WebSocket in production
+  if (window.location.hostname === 'python-code-editor-1-bhs7.onrender.com') {
+    return `wss://${window.location.host}/ws/terminal`;
+  }
+  // Use appropriate protocol for development
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const host = window.location.host;
   return `${protocol}//${host}/ws/terminal`;
