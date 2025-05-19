@@ -180,7 +180,7 @@ class ProcessManager:
                     
                     self.process.stdin.write(input_data)
                     self.process.stdin.flush()
-                    
+                
                 except asyncio.CancelledError:
                     raise
                 except Exception as e:
@@ -304,36 +304,30 @@ async def websocket_endpoint(websocket: WebSocket):
                         await websocket.send_text(f"\nError: {str(e)}\n")
                     except:
                         pass
-                    
+                
         except WebSocketDisconnect:
             logger.info(f"WebSocket disconnected: {connection_id}")
         except Exception as e:
-            logger.error(f"WebSocket error: {str(e)}")
+            logger.error(f"Error in websocket connection: {str(e)}")
             logger.error(traceback.format_exc())
-            try:
-                await websocket.send_text(f"\nError: {str(e)}\n")
-            except:
-                pass
         finally:
             if connection_id in active_connections:
-                await active_connections[connection_id].stop_process()
+                manager = active_connections[connection_id]
+                await manager.cleanup()
                 del active_connections[connection_id]
-                
     except Exception as e:
-        logger.error(f"Error in websocket_endpoint: {str(e)}")
+        logger.error(f"Error in websocket endpoint: {str(e)}")
         logger.error(traceback.format_exc())
-        try:
-            await websocket.close(code=1011, reason=str(e))
-        except:
-            pass
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    logger.info("Shutting down server, cleaning up connections...")
-    for manager in active_connections.values():
-        await manager.stop_process()
+    # Clean up all active connections
+    for connection_id, manager in list(active_connections.items()):
+        try:
+            await manager.cleanup()
+        except Exception as e:
+            logger.error(f"Error cleaning up connection {connection_id}: {str(e)}")
     active_connections.clear()
-    logger.info("Server shutdown complete")
 
 if __name__ == "__main__":
     import uvicorn
