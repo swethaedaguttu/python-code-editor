@@ -52,6 +52,10 @@ static_dir = os.path.join(current_dir, "static")
 logger.info(f"Static directory path: {static_dir}")
 if os.path.exists(static_dir):
     logger.info(f"Static directory contents: {os.listdir(static_dir)}")
+    # Log contents of nested static directory if it exists
+    nested_static = os.path.join(static_dir, "static")
+    if os.path.exists(nested_static):
+        logger.info(f"Nested static directory contents: {os.listdir(nested_static)}")
 else:
     logger.error(f"Static directory does not exist: {static_dir}")
 
@@ -65,7 +69,21 @@ async def read_root():
     if not os.path.exists(index_path):
         logger.error(f"index.html not found at: {index_path}")
         return {"error": "Static files not found"}
-    return FileResponse(index_path)
+    
+    # Read and modify index.html to fix static file paths
+    with open(index_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # Fix static file paths if needed
+    if '/static/' not in content:
+        content = content.replace('href="/', 'href="/static/')
+        content = content.replace('src="/', 'src="/static/')
+    
+    return FileResponse(
+        index_path,
+        media_type='text/html',
+        headers={'Content-Type': 'text/html'}
+    )
 
 # Store active connections
 active_connections: Dict[str, 'ProcessManager'] = {}

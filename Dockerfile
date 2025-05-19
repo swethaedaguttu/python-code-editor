@@ -40,6 +40,13 @@ COPY backend/ ./backend/
 RUN mkdir -p backend/static
 COPY --from=frontend-builder /app/frontend/build/ ./backend/static/
 
+# Move static files to the correct location
+RUN cd backend/static && \
+    if [ -d "static" ]; then \
+        mv static/* . && \
+        rm -rf static; \
+    fi
+
 # Set correct permissions
 RUN chmod -R 755 backend/static
 
