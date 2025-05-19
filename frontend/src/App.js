@@ -902,7 +902,7 @@ function App() {
         }
 
         try {
-          wsRef.current = new WebSocket(`ws://localhost:8000/ws/terminal?connectionId=${connectionId}`);
+          wsRef.current = new WebSocket(`ws://${window.location.host}/ws/terminal?connectionId=${connectionId}`);
           
           wsRef.current.onopen = () => {
             console.log('WebSocket connected');
